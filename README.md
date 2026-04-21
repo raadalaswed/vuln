@@ -137,10 +137,9 @@ VulnLab/
 
 ## 👤 Author
 
-**[اسمك]**  
-Cybersecurity Engineering Student — Year 3  
-📧 your@email.com  
-🔗 [LinkedIn](https://linkedin.com) · [GitHub](https://github.com/YOUR-USERNAME)
+**[Raad Alaswed]**  
+Cybersecurity Engineering  
+ [GitHub](https://raadalaswed.github.io/me/)
 
 ---
 
